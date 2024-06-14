@@ -1,13 +1,11 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using JetBrains.Annotations;
-using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, IDamageble
 {
     [SerializeField] private Camera playearCamera;
+    [SerializeField] private float maxHealth = 10;
+    [SerializeField] private float currentHealth;
     [SerializeField] float speed = 1;
     [SerializeField] float mouseSensivity = 25;
     [SerializeField] private float gravityForce = 9.8f;
@@ -25,6 +23,7 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+        currentHealth = maxHealth;
         cc = GetComponent<CharacterController>();
         LockCursor();
     }
@@ -93,5 +92,20 @@ public class PlayerController : MonoBehaviour
         {
             items[itemIndex].Use();
         }
+    }
+
+    public void TakeDamage(float damageAmout)
+    {
+        Debug.Log("Player took damage!");
+        currentHealth -= damageAmout;
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
