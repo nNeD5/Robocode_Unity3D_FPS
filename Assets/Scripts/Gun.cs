@@ -7,6 +7,9 @@ public class Gun : Item
     [SerializeField] private float damageAmount = 5f;
     [SerializeField] private Transform muzzle;
     [SerializeField] private float fireRatePerSecond = 1;
+    [SerializeField] private GameObject shootFx = null;
+    [SerializeField] private Transform shootFxPos = null;
+    [SerializeField] private AudioSource fireSound = null;
 
     private Animator animator;
 
@@ -17,6 +20,9 @@ public class Gun : Item
         animator = GetComponent<Animator>();
 
         Debug.Assert(animator, "Animator missed");
+        Debug.Assert(shootFx, "ShootFx missed");
+        Debug.Assert(shootFxPos, "ShootFx Pos missed");
+        Debug.Assert(fireSound, "Fire Sound missed");
     }
 
     public override void Use()
@@ -25,19 +31,12 @@ public class Gun : Item
             return;
         nextFire = Time.time + fireRatePerSecond;
         animator.SetTrigger("Shoot");
+        fireSound.Play();
+        Instantiate(shootFx, shootFxPos.position, shootFxPos.rotation);
         RaycastHit hit;
         if (Physics.Raycast(muzzle.position, muzzle.TransformDirection(Vector3.forward), out hit, Mathf.Infinity))
         {
-            Debug.DrawRay(muzzle.position, muzzle.TransformDirection(Vector3.forward) * hit.distance, Color.red);
-            var damageble = hit.collider.GetComponent<IDamageble>();
-            if (damageble != null)
-            {
-                damageble.TakeDamage(damageAmount);
-            }
-        }
-        else
-        {
-            Debug.DrawRay(muzzle.position, muzzle.TransformDirection(Vector3.forward) * 1000, Color.white);
+            hit.collider.GetComponent<IDamageble>()?.TakeDamage(damageAmount);
         }
     }
 }
